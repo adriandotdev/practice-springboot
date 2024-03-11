@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.Valid;
 
@@ -15,7 +17,7 @@ import jakarta.validation.Valid;
 @RequestMapping(path = "/api/v1/students")
 public class StudentController {
 
-    public record CustomResponseEntity<T>(String message, HttpStatus status, T data) {}
+    public record CustomResponseEntity<T>(Object message, HttpStatus status, T data) {}
     private final StudentService service;
 
     @Autowired
@@ -45,10 +47,18 @@ public class StudentController {
     }
 
     @PostMapping("")
-    public ResponseEntity<CustomResponseEntity<Integer>> addStudent(@Valid @RequestBody Student student, BindingResult result) {
+    public ResponseEntity<CustomResponseEntity<Integer>> AddStudent(@Valid @RequestBody Student student, BindingResult result) {
+
+        List<ObjectError> errors = result.getAllErrors();
 
         if (result.hasErrors()) {
-            return new ResponseEntity<>(new CustomResponseEntity<>(result.toString(), HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
+
+            List<String> errorMessages = new ArrayList<>();
+
+            for (ObjectError error : errors) {
+                errorMessages.add(error.getDefaultMessage());
+            }
+            return new ResponseEntity<>(new CustomResponseEntity<>(errorMessages, HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
         }
         System.out.println("SUCCESS");
         int affectedRows = this.service.AddStudent(student);
