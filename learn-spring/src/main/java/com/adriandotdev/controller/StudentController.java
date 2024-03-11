@@ -5,9 +5,11 @@ import com.adriandotdev.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/api/v1/students")
@@ -43,12 +45,17 @@ public class StudentController {
     }
 
     @PostMapping("")
-    public ResponseEntity<CustomResponseEntity<Integer>> AddStudent(@RequestBody Student student) {
+    public ResponseEntity<CustomResponseEntity<Integer>> addStudent(@Valid @RequestBody Student student, BindingResult result) {
 
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(new CustomResponseEntity<>(result.toString(), HttpStatus.BAD_REQUEST, null), HttpStatus.BAD_REQUEST);
+        }
+        System.out.println("SUCCESS");
         int affectedRows = this.service.AddStudent(student);
 
         return new ResponseEntity<>(new CustomResponseEntity<>("Successfully created new student", HttpStatus.OK, affectedRows), HttpStatus.OK);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<CustomResponseEntity<Integer>> RemoveStudent(@PathVariable int id) {

@@ -1,10 +1,20 @@
 package com.adriandotdev.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 public class Student {
 
     private int id;
+    @NotBlank(message = "First name must not be blank")
     private String first_name;
+
+    @NotBlank(message = "Last name must not be blank")
     private String last_name;
+
+    @NotNull(message = "Date of birth must not be null")
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date of birth format. Use yyyy-MM-dd")
     private String date_of_birth;
 
 
